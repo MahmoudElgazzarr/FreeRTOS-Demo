@@ -29,6 +29,10 @@
 #ifndef __LCD_H__
 #define __LCD_H__
 
+extern uint8_t LCD_InitState;
+extern uint8_t DisplaySectionState;
+extern uint8_t Write_Flag_LCD;
+
 enum LCD_CMD{
         LCD_CMD_ClearDisplayScreen_e        = 0x01U,
         LCD_CMD_ReturnHome_e                = 0x02U,
@@ -119,7 +123,7 @@ enum SectionNumber{
 *               5- Let Cursor Begin From 1st Line
 *
 ************************************************************************/
-extern void LCD_initTask (void);
+extern void LCD_init (void);
 
 
 /************************************************************************
@@ -172,7 +176,7 @@ extern void LCD_sendCommandTask (uint8_t LCD_Command);
 *               12- Disable LCD
 *
 ************************************************************************/
-extern void LCD_displayCharTask (uint8_t LCD_Char);
+extern void LCD_displayChar (uint8_t LCD_Char);
 
 
 
@@ -245,5 +249,4 @@ extern void LCD_clear (void);
 *
 ************************************************************************/
 extern void LCD_gotoRowColumn (uint8_t LCD_Line , uint8_t LCD_DigitPosition);
-void LCD_displayChar (uint8_t LCD_Char);
 #endif

@@ -13,6 +13,7 @@
 #include "driverlib/uart.h"
 #include "utils/uartstdio.h"
 #include "switch_task.h"
+#include "LCD_Task.h"
 #include "FreeRTOS.h"
 #include "Task.h"
 
@@ -61,6 +62,8 @@ int main(void)
     xTaskCreate(Buzzer_init_Task, (const portCHAR *)"Buzzer_Init", 128, NULL, 14 , NULL);
     /*Create Init Task for Switch*/
     xTaskCreate(Switch_Init_Task, (const portCHAR *)"Switch_Init", 128, NULL, 13 , NULL);
+    /*Create Init Task for Switch*/
+    xTaskCreate(LCD_init_Task, (const portCHAR *)"LCD_Init", 128, NULL, 12 , NULL);
 
     /*add Task 1 for led1*/
     xTaskCreate(LED1_Blink, (const portCHAR *)"LED1", 50, NULL, 3 , NULL);
@@ -69,7 +72,10 @@ int main(void)
     /*add Task 3 for led3*/
     xTaskCreate(LED3_Blink, (const portCHAR *)"LED3", 50, NULL, 5 , NULL);
     /*add Task Four For Buzzer*/
-    xTaskCreate(Buzzer_Task, (const portCHAR *)"LED3", 50, NULL, 6 , NULL);
+    xTaskCreate(Buzzer_Task, (const portCHAR *)"Buzzer", 50, NULL, 6 , NULL);
+    /*add Task For LCD To Print Random String*/
+    xTaskCreate(LCD_Print_String_Task, (const portCHAR *)"LCD_Print", 50, NULL, 6 , NULL);
+
     //
     // Start the scheduler.  This should not return.
     //

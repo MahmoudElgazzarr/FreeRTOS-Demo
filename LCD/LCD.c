@@ -11,12 +11,15 @@
 #include "driverlib/debug.h"
 #include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
-#include "LCD.h"
 #include "LCD_cfg.h"
+#include "LCD.h"
 
 
-static volatile uint8_t LCD_InitState    = ONE;
+uint8_t LCD_InitState = ONE;
+uint8_t DisplaySectionState = ONE ;
+uint8_t Write_Flag_LCD = ZERO;
 static volatile uint8_t SendCommadFinish = ZERO ;
+
 
 static void LCD_initSection1(void);
 static void LCD_initSection2(void);
@@ -46,9 +49,7 @@ static void LCD_displayCharSection3 ();
 *               5- Let Cursor Begin From 1st Line
 *
 ************************************************************************/
-void LCD_initTask (void){
-    if(LCD_INT_COMPLETE != LCD_InitState)
-    {
+void LCD_init (void){
         switch(LCD_InitState)
         {
         case Section_1_e :  LCD_initSection1();
@@ -65,7 +66,6 @@ void LCD_initTask (void){
                             break;
         default:break;
         }
-    }
 
 }
 
@@ -164,10 +164,9 @@ void LCD_sendCommand (uint8_t LCD_Command){
 *               12- Disable LCD
 *
 ************************************************************************/
-void LCD_displayCharTask (uint8_t LCD_Char){
+void LCD_displayChar (uint8_t LCD_Char){
 
-    static uint8_t DisplaySectionState = 1 ;
-    if(1) /* external Flag */
+    if( Write_Flag_LCD == ONE )
     {
         switch(DisplaySectionState)
         {
@@ -180,13 +179,11 @@ void LCD_displayCharTask (uint8_t LCD_Char){
                            break;
         case Section_3_e : LCD_displayCharSection3();
                            DisplaySectionState=1;
+                           Write_Flag_LCD = ZERO;
                            break;
         default:break;
-
         }
     }
-
-
 
 }
 
@@ -332,38 +329,11 @@ static void LCD_initSection6(void)
     }
 
 }
-void LCD_displayChar (uint8_t LCD_Char){
-
-    volatile uint32_t ui32Loop;
-
-    GPIOPinWrite(GPIO_PORTA_BASE, LCD_RS, LCD_RS); /* Set RS Pin to Send Data */
-
-    GPIOPinWrite(GPIO_PORTA_BASE, LCD_RW, LOW); /* Clear RW Pin to Set Read Mode */
-
-    /* Put MSB Char On LCD Data Pins */
-    GPIOPinWrite(GPIO_PORTC_BASE, LCD_D4, ( LCD_Char & BitNum_4_e )); /* Data Bit (4) = LCD Data pin (4) */
-    GPIOPinWrite(GPIO_PORTC_BASE, LCD_D5, ( LCD_Char & BitNum_5_e )); /* Data Bit (5) = LCD Data pin (5) */
-    GPIOPinWrite(GPIO_PORTC_BASE, LCD_D6, ( LCD_Char & BitNum_6_e )); /* Data Bit (6) = LCD Data pin (6) */
-    GPIOPinWrite(GPIO_PORTC_BASE, LCD_D7, ( LCD_Char & BitNum_7_e )); /* Data Bit (7) = LCD Data pin (7) */
-
-    GPIOPinWrite(GPIO_PORTA_BASE, LCD_E, LCD_E); /* Enable LCD To Latch Command */
-
-    /* Dummy Delay */
-    SysCtlDelay(2000);
-
-    GPIOPinWrite(GPIO_PORTA_BASE, LCD_E, LOW);  /* Disable LCD */
-
-    /* Put LSB Char On LCD Data Pins */
-    GPIOPinWrite(GPIO_PORTC_BASE, LCD_D4, ( (LCD_Char<<FourBits_e) & BitNum_4_e )); /* Data Bit (0) = LCD Data pin (4) */
-    GPIOPinWrite(GPIO_PORTC_BASE, LCD_D5, ( (LCD_Char<<FourBits_e) & BitNum_5_e )); /* Data Bit (1) = LCD Data pin (5) */
-    GPIOPinWrite(GPIO_PORTC_BASE, LCD_D6, ( (LCD_Char<<FourBits_e) & BitNum_6_e )); /* Data Bit (2) = LCD Data pin (6) */
-    GPIOPinWrite(GPIO_PORTC_BASE, LCD_D7, ( (LCD_Char<<FourBits_e) & BitNum_7_e )); /* Data Bit (3) = LCD Data pin (7) */
-
-    GPIOPinWrite(GPIO_PORTA_BASE, LCD_E, LCD_E); /* Enable LCD To Latch Command */
-
-    /* Dummy Delay */
-    SysCtlDelay(2000);
-
-    GPIOPinWrite(GPIO_PORTA_BASE, LCD_E, LOW);  /* Disable LCD */
-
+extern void LCD_displayString (uint8_t* LCD_String, uint8_t LCD_StringSize)
+{
+    uint8_t index;
+    for(index=0;index<LCD_StringSize;index++)
+    {
+        LCD_displayChar(LCD_String[index]);
+    }
 }
