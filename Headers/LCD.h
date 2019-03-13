@@ -149,8 +149,7 @@ extern void LCD_init (void);
 *               10- Delay 2 ms
 *               11- Disable LCD
 ************************************************************************/
-extern void LCD_sendCommandTask (uint8_t LCD_Command);
-
+extern void LCD_sendCommand (uint8_t LCD_Command);
 
 
 /************************************************************************

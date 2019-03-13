@@ -13,6 +13,8 @@
 #include "driverlib/sysctl.h"
 #include "LCD_cfg.h"
 #include "LCD.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 
 uint8_t LCD_InitState = ONE;
@@ -329,11 +331,13 @@ static void LCD_initSection6(void)
     }
 
 }
+
 extern void LCD_displayString (uint8_t* LCD_String, uint8_t LCD_StringSize)
 {
     uint8_t index;
     for(index=0;index<LCD_StringSize;index++)
     {
         LCD_displayChar(LCD_String[index]);
+        vTaskDelay(100);
     }
 }
